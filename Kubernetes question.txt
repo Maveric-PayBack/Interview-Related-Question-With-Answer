@@ -1,0 +1,129 @@
+What is a Stateless Microservice?
+Stateless Microservice:
+
+No Memory of Previous Requests: Each time a client sends a request to the microservice, the service doesn't remember any previous interactions with that client.
+
+ Every request is treated as a completely new one.
+Self-contained Requests: Every request to the microservice must contain all the information the service needs to process it. 
+The service doesn't rely on any stored data from past requests.
+
+
+Why Use Stateless Microservices?
+Benefits:
+
+Easy to Scale: Since the service doesn't need to remember past requests, you can easily add more instances (copies) of the service to handle more traffic.
+
+Resilient to Failures: If one instance of the service fails, another instance can take over without any issues because 
+it doesn't need to know about past interactions.
+
+Simpler Load Balancing: Any instance of the service can handle any request, making it easy for a load balancer to distribute requests evenly.
+
+Stateless Microservices in Kubernetes
+How They Work in Kubernetes:
+
+Pods: In Kubernetes, your microservice runs inside a container within a "Pod." A Pod is the smallest, most basic deployable unit in Kubernetes.
+ReplicaSets: To ensure your service can handle many requests, Kubernetes can create multiple identical Pods using a ReplicaSet. Each Pod is a stateless instance of your microservice.
+Service: Kubernetes uses a "Service" to manage and expose your microservice. The Service ensures that requests are distributed among the available Pods.
+Example
+Imagine you have a stateless microservice that processes image uploads. Each time a user uploads an image:
+
+User Sends Request: The request contains the image file and any necessary metadata.
+Pod Handles Request: One of the Pods running your stateless microservice processes the image upload without needing any information from previous uploads.
+More Traffic, More Pods: If many users start uploading images at the same time, Kubernetes can create more Pods to handle the increased load.
+
+Ques: What is a Statefull microservices in kubernetes ?
+
+Remembers Previous Requests: Unlike stateless microservices, stateful microservices need to remember 
+information from previous interactions with the client. This might include user sessions, 
+shopping cart contents, or any data that persists across requests.
+Maintains State: They keep track of state, meaning they store data that is required for ongoing operations and interactions.
+
+To manage stateful applications, Kubernetes uses StatefulSets instead of ReplicaSets. 
+StatefulSets ensure that each Pod has a unique and stable identity, persistent storage, and ordered deployment.
+
+
+Ques: How the pods are communicating with each other in kubernetes
+
+Ans:  IP Addressing: Each Pod in a Kubernetes cluster has a unique IP address. Pods can communicate with each other directly using these IP addresses.
+Flat Network: Kubernetes creates a flat network across all Pods, meaning every Pod can reach every other Pod without NAT (Network Address Translation).
+Inter-Pod Communication Using Network Policies
+Network Policies: These are used to control the traffic between Pods. By default, all Pods can communicate with each other. 
+Network policies can be used to restrict this communication based on labels, namespaces, and other criteria.
+Example: A network policy can be configured to allow only Pods with a specific label to communicate with each other.
+
+Ques:  what is pod security policy in kubernetes?
+Ans:  It defines a set of conditions that a pod must meet in order to be allowed to run in the cluster.
+ By using PSPs, administrators can enforce security standards and ensure that pods comply with the organization's security policies.
+
+Admission Control: When a pod is created, the PSP admission controller evaluates the pod's specification against the available policies.
+ If the pod's specification meets the requirements of a policy, it is allowed to run; otherwise, the pod creation is denied.
+
+Ques: .How do you secure microservices?
+Ans: Authentication and Authorization
+Authentication: Ensure that only legitimate users and services can access your microservices. Use protocols like OAuth2, OpenID Connect, or JWT (JSON Web Tokens) for securing API access.
+
+Identity Providers: Leverage centralized identity providers (e.g., Okta, Auth0) to manage authentication.
+Authorization: Control access to resources based on user roles and permissions. 
+Implement Role-Based Access Control (RBAC) to ensure that users and services have the minimum necessary permissions.
+
+Policy Engines: Use policy engines like Open Policy Agent (OPA) to enforce fine-grained authorization policies.
+
+Ques:  what is service in Kubernetes? How many type are there?
+
+Ans: ClusterIP (Default):
+Description: Exposes the Service on an internal IP within the cluster. This type of Service is only accessible from within the cluster.
+
+NodePort:
+Description: Exposes the Service on a static port on each Node's IP. 
+A NodePort Service makes the Service accessible from outside the cluster by requesting <NodeIP>:<NodePort>.
+
+LoadBalancer:
+Description: Exposes the Service using a cloud provider's load balancer. 
+The cloud provider will automatically create and configure a load balancer, and the Service will be accessible via the load balancer's IP address.
+
+ExternalName:
+Description: Maps the Service to the contents of the externalName field (e.g., my.database.example.com).
+ It returns a CNAME record with the value of externalName. No proxying or forwarding occurs, and the DNS query is sent directly to the specified external name.
+
+Ques: what is API versioning and why it is important in microservices?
+
+Ans: API versioning is the practice of managing changes and updates to an API in a way that allows clients to continue using the API without disruption.
+ In microservices, each service often exposes its own API, and over time, these APIs may need to evolve to add new features, fix bugs, or improve performance. 
+API versioning ensures that these changes can be introduced without breaking existing clients that depend on the current behavior of the API.
+
+Ques: What are taints and tolerations in Kubernetes and how do they work?
+
+Ans: Definition: A taint is a property applied to a node that prevents pods from being scheduled onto it unless they have a matching toleration.
+Definition: A toleration is applied to a pod to allow it to be scheduled on nodes with matching taints.
+
+Ques: explain node affinity and pod affinity 
+
+Ans: Node Affinity controls which nodes a pod can be scheduled on based on node labels.
+Node Labels:
+
+Key-value pairs assigned to nodes.
+Example: disktype=ssd, zone=us-west1
+
+Node Affinity Types:
+requiredDuringSchedulingIgnoredDuringExecution: Must be met for a pod to be scheduled on a node.
+preferredDuringSchedulingIgnoredDuringExecution: Preferred but not required for a pod to be scheduled on a node.
+
+Pod Affinity controls where a pod should be scheduled in relation to other pods.
+Pod Labels:
+
+Key-value pairs assigned to pods.
+Example: app=store, tier=frontend
+
+Pod Affinity Types:
+requiredDuringSchedulingIgnoredDuringExecution: Must be met for a pod to be scheduled near other pods.
+preferredDuringSchedulingIgnoredDuringExecution: Preferred but not required for a pod to be scheduled near other pods
+
+Ques :choreography vs orchestration in Kubernetes?
+Ans: Choreography
+In a choreography pattern, each service works independently and communicates with other services through events. 
+There is no central controller; instead, services listen for events and react to them. 
+This approach is decentralized and allows services to be more loosely coupled.
+
+Orchestration
+In an orchestration pattern, a central controller (orchestrator) manages the interactions between services. 
+The orchestrator handles the workflow logic and coordinates the sequence of service calls to achieve a specific business process.
